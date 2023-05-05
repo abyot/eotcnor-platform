@@ -1,0 +1,87 @@
+<div class="row">
+    <div class="col-sm-6">
+        <h3>{{'new_tei' | translate}}</h3>
+        <table class="table table-bordered table-striped">
+            <tr ng-repeat="att in model.teiHeaders">
+                <td>
+                    {{att.displayName}}
+                </td>
+                <td>
+                    <ng-form name="innerForm">
+                        <div ng-if="att.optionSetValue">
+                            <ui-select ng-model="model.tei[att.id]"
+                                       ng-required="att.mandatory"
+                                       name="foo"
+                                       theme="select2"
+                                       style="width:100%;">
+                                <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.optionSets[att.optionSet.id].options && model.optionSets[att.optionSet.id].options.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                <ui-select-choices repeat="option.displayName as option in model.optionSets[att.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                                    <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <div ng-if="!att.optionSetValue" ng-switch="att.valueType">
+                            <div ng-switch-when="NUMBER">
+                                <input type="number"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.tei[att.id]">
+                            </div>
+                            <div ng-switch-when="TEXT">
+                                <input type="text"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.tei[att.id]">
+                            </div>
+                            <div ng-switch-when="LONG_TEXT">
+                                <textarea rows="3"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.tei[att.id]">
+                                </textarea>
+                            </div>
+                            <div ng-switch-when="DATE">
+                                <input type="text"
+                                    ng-attr-placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    d2-date
+                                    max-date="0"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.tei[att.id]"/>
+                            </div>
+                            <div ng-switch-when="EMAIL">
+                                <input type="email"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.tei[att.id]">
+                            </div>
+                            <div ng-switch-when="PHONE_NUMBER">
+                                <input type="text"
+                                    name="foo"
+                                    class="form-control pull-center"
+                                    ng-required="att.mandatory"
+                                    ng-model="model.tei[att.id]">
+                            </div>
+                        </div>
+                        <span ng-messages="innerForm.foo.$error" ng-if="interacted(innerForm.foo, 1)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>
+                    </ng-form>
+                </td>
+            </tr>
+        </table>
+        <button type="button"
+                class="btn btn-info"
+                ng-click="addTei()">
+            {{'save'| translate}}
+        </button>
+        <button type="button"
+                class="btn btn-danger horizontal-spacing"
+                ng-click="cancelEdit()">
+            {{'cancel'| translate}}
+        </button>
+    </div>
+</div>

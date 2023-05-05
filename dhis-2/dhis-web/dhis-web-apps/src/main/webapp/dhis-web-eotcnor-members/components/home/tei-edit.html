@@ -1,0 +1,228 @@
+<div class="row">
+    <div class="col-sm-12 font-16">
+        {{'tei_details'| translate}}
+        <span ng-click="deleteTei()" class="btn btn-danger horizontal-spacing" title="{{'delete_tei' | translate}}">
+            <i class="fa fa-trash-o"></i>
+        </span>
+        <span ng-if="model.enrollablePrograms.length > 0"
+              class="btn btn-info horizontal-spacing"
+              title="{{'additional_tracking' | translate}}"
+              ng-click="additionalTracking()">
+            <i class="fa fa-arrow-right"></i>
+        </span>
+    </div>
+</div>
+
+<div class="row small-vertical-spacing">
+    <div class="col-sm-12 col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading bold cursor-pointer">
+                {{'tei_profile'| translate}}
+                <span class="nav-pills horizontal-spacing" ng-if="!addOrEditTeiDenied() && !hideProfile">
+                     |
+                    <a href ng-click="showEditProfile()" ng-attr-title="{{'edit_profile'| translate}}">
+                        {{'edit'| translate}}
+                    </a>
+                </span>
+                <span class="nav-pills pull-right" ng-click="hideProfile = !hideProfile">
+                    <span ng-show="!hideProfile">
+                        <i class="fa fa-chevron-up fa-2x vertical-center" title="{{'collapse'| translate}}"></i>
+                    </span>
+                    <span ng-show="hideProfile">
+                        <i class="fa fa-chevron-down fa-2x vertical-center" title="{{'expand'| translate}}"></i>
+                    </span>
+                </span>
+            </div>
+            <div class="panel-body small-pading">
+                <div ng-if="!hideProfile">
+                    <table class="table table-responsive table-bordered table-striped small-bottom-margin">
+                        <tr ng-repeat="att in model.teiHeaders">
+                            <td>
+                                {{att.displayName}}
+                            </td>
+                            <td>
+                                <ng-form name="innerProfileForm">
+                                    <div ng-if="att.optionSetValue">
+                                        <ui-select ng-model="model.tei[att.id]"
+                                                   ng-required="att.mandatory"
+                                                   ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                   name="foo"
+                                                   theme="select2"
+                                                   style="width:100%;">
+                                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{model.optionSets[att.optionSet.id].options && model.optionSets[att.optionSet.id].options.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                                            <ui-select-choices repeat="option.displayName as option in model.optionSets[att.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                                                <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                    <div ng-if="!att.optionSetValue" ng-switch="att.valueType">
+                                        <div ng-switch-when="NUMBER">
+                                            <input type="number"
+                                                   name="foo"
+                                                   class="form-control pull-center"
+                                                   ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                   ng-required="att.mandatory"
+                                                   ng-model="model.tei[att.id]">
+                                        </div>
+                                        <div ng-switch-when="TEXT">
+                                            <input type="text"
+                                                   name="foo"
+                                                   class="form-control pull-center"
+                                                   ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                   ng-required="att.mandatory"
+                                                   ng-model="model.tei[att.id]">
+                                        </div>
+                                        <div ng-switch-when="LONG_TEXT">
+                                            <textarea rows="3"
+                                                      name="foo"
+                                                      class="form-control pull-center"
+                                                      ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                      ng-required="att.mandatory"
+                                                      ng-model="model.tei[att.id]">
+                                            </textarea>
+                                        </div>
+                                        <div ng-switch-when="DATE">
+                                            <input type="text"
+                                                   ng-attr-placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
+                                                   name="foo"
+                                                   class="form-control pull-center"
+                                                   d2-date
+                                                   ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                   ng-required="att.mandatory"
+                                                   ng-model="model.tei[att.id]"/>
+                                        </div>
+                                        <div ng-switch-when="EMAIL">
+                                            <input type="email"
+                                                   name="foo"
+                                                   class="form-control pull-center"
+                                                   ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                   ng-required="att.mandatory"
+                                                   ng-model="model.tei[att.id]">
+                                        </div>
+                                        <div ng-switch-when="PHONE_NUMBER">
+                                            <input type="text"
+                                                   name="foo"
+                                                   class="form-control pull-center"
+                                                   ng-disabled="addOrEditTeiDenied() || !model.editProfile"
+                                                   ng-required="att.mandatory"
+                                                   ng-model="model.tei[att.id]">
+                                        </div>
+                                    </div>
+                                    <span ng-messages="innerProfileForm.foo.$error" ng-if="interacted(innerProfileForm.foo, 2)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>
+                                </ng-form>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="row col-sm-12 vertical-spacing" ng-if="model.editProfile">
+                        <button type="button"
+                                class="btn btn-info"
+                                ng-click="updateTei()">
+                            {{'update'| translate}}
+                        </button>
+                        <button type="button"
+                                class="btn btn-danger horizontal-spacing"
+                                ng-click="cancelEditProfile()">
+                            {{'cancel'| translate}}
+                        </button>
+                    </div>
+                </div>
+                <div ng-if="hideProfile" class="alert alert-warning">
+                    {{'please_expand_profile' | translate}}
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading bold cursor-pointer">
+                {{'relationships' | translate}}
+                <span class="nav-pills pull-right" ng-click="hideRelationship = !hideRelationship">
+                    <span ng-show="!hideRelationship">
+                        <i class="fa fa-chevron-up fa-2x vertical-center" title="{{'collapse'| translate}}"></i>
+                    </span>
+                    <span ng-show="hideRelationship">
+                        <i class="fa fa-chevron-down fa-2x vertical-center" title="{{'expand'| translate}}"></i>
+                    </span>
+                </span>
+            </div>
+            <div class="panel-body small-pading">
+                <div ng-if="!hideRelationship">
+                    <table class="table table-bordered dhis2-table-hover table-responsive"
+                            ng-if="model.tei.relationships.length > 0">
+                         <tbody>
+                             <tr ng-attr-title="{{'show_details'| translate}}" class="cursor-pointer"
+                                 ng-repeat="relationship in  model.tei.relationships"
+                                 ng-init="relationshipInfo = model.relationshipTypes[relationship.relationshipType]"
+                                 ng-click="showRelationship(relationship)">
+                                 <td>
+                                     {{relationship.relationshipName}}
+                                 </td>
+                             </tr>
+                         </tbody>
+                     </table>
+
+                    <div class="alert alert-warning" ng-if="$scope.model.tei.relationships.length === 0">
+                        {{'no_relationship_exists'| translate}}
+                    </div>
+
+                    <div class="row col-sm-12 vertical-spacing">
+                        <button type="button"
+                                class="btn btn-primary"
+                                ng-click="showAddRelationship()">
+                            {{'add_new'| translate}}
+                        </button>
+                    </div>
+                </div>
+                <div ng-if="hideRelationship" class="alert alert-warning">
+                    {{'please_expand_relationship' | translate}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6"
+         ng-repeat="programStage in model.selectedProgram.programStages">
+        <div class="panel panel-default">
+            <div class="panel-heading bold">
+                {{programStage.displayName}}
+            </div>
+            <div class="panel-body small-pading">
+                <table class="table table-bordered dhis2-table-hover table-responsive"
+                       ng-if="(model.tei.status | filter: {programStage: programStage.id}).length > 0">
+                    <thead>
+                        <tr>
+                            <th>
+                                {{'date'| translate}}
+                            </th>
+                            <th ng-repeat="prStDe in programStage.programStageDataElements" ng-if="prStDe.displayInReports">
+                                {{model.dataElementsById[prStDe.dataElement.id].displayName}}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-attr-title="{{'show_details'| translate}}" class="cursor-pointer"
+                            ng-repeat="status in  model.tei.status | filter: {programStage: programStage.id}"
+                            ng-click="showTeiStatus(programStage, status)">
+                            <td>
+                                {{status.eventDate}}
+                            </td>
+                            <td ng-repeat="psde in model.selectedStage.programStageDataElements" ng-init="de = model.dataElementsById[psde.dataElement.id]">
+                                {{status.values[de.id]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-warning" ng-if="(model.tei.status | filter: {programStage: programStage.id}).length === 0">
+                    {{'no_data_exists'| translate}}
+                </div>
+
+                <div class="row col-sm-12 vertical-spacing">
+                    <button type="button"
+                            class="btn btn-primary"
+                            ng-click="showTeiStatus(programStage, null)">
+                        {{'add_new'| translate}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
